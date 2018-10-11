@@ -1,0 +1,6 @@
+[package]
+name = "paxos"
+version = "0.1.0"
+authors = ["Cam <cirmas@protonmail.com>"]
+
+[dependencies]
