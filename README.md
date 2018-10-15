@@ -1,7 +1,9 @@
-# :love_letter: Paxos [![Latest Version]][crates.io]
+# :love_letter: Paxos [![Latest Version]][crates.io] [![Build Status]][repo]
 
 [Latest Version]: https://img.shields.io/crates/v/paxos-rust.svg
 [crates.io]: https://crates.io/crates/paxos-rust
+[Build Status]: https://travis-ci.org/camirmas/paxos.svg?branch=master
+[Repo]: https://travis-ci.org/camirmas/paxos
 
 > A (Rust flavored) lightweight implementation of the Paxos Consensus Algorithm
 
