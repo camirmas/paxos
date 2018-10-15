@@ -1,6 +1,14 @@
 [package]
-name = "paxos"
-version = "0.1.0"
+name = "paxos-rust"
+description = "A lightweight implementation of the Paxos Consensus Algorithm"
+version = "0.1.1"
 authors = ["Cam <cirmas@protonmail.com>"]
+exclude = [
+  "tests/*"
+]
+readme = "README.md"
+keywords = ["consensus"]
+license-file = "LICENSE"
+repository = "https://github.com/camirmas/paxos"
 
 [dependencies]
