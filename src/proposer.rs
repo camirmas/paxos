@@ -32,16 +32,11 @@ where
     T: Eq + Hash + Clone,
 {
     /// Creates a new `Proposer`.
-    pub fn new(id: u64) -> Self {
+    pub fn new(id: u64, quorum: u8) -> Self {
         Self {
             id,
-            value: None,
-            messenger: None,
-            proposal_n: 0,
-            last_accepted_n: 0,
-            promises_received: HashMap::new(),
-            accepted_received: HashMap::new(),
-            quorum: 7,
+            quorum,
+            ..Self::default()
         }
     }
 
@@ -121,13 +116,28 @@ where
     }
 }
 
+impl<T> Default for Proposer<T> {
+    fn default() -> Self {
+        Self {
+            id: 1,
+            quorum: 7,
+            value: None,
+            messenger: None,
+            proposal_n: 0,
+            last_accepted_n: 0,
+            promises_received: HashMap::new(),
+            accepted_received: HashMap::new(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn proposer_new() {
-        let p: Proposer<u64> = Proposer::new(1);
+        let p: Proposer<u64> = Proposer::default();
 
         assert_eq!(p.id, 1);
         assert_eq!(p.proposal_n, 0);
@@ -140,7 +150,7 @@ mod tests {
 
     #[test]
     fn proposer_prepare() {
-        let mut p: Proposer<u64> = Proposer::new(1);
+        let mut p: Proposer<u64> = Proposer::default();
 
         p.prepare(60);
 
@@ -151,7 +161,7 @@ mod tests {
 
     #[test]
     fn proposer_receive_promise() {
-        let mut p: Proposer<u64> = Proposer::new(1);
+        let mut p: Proposer<u64> = Proposer::default();
 
         p.prepare(60);
 
@@ -169,7 +179,7 @@ mod tests {
 
     #[test]
     fn proposer_accept() {
-        let mut p: Proposer<u64> = Proposer::new(1);
+        let mut p: Proposer<u64> = Proposer::default();
 
         p.prepare(60);
 
@@ -204,7 +214,7 @@ mod tests {
 
     #[test]
     fn proposer_receive_accepted() {
-        let mut p: Proposer<u64> = Proposer::new(1);
+        let mut p: Proposer<u64> = Proposer::default();
 
         p.prepare(60);
 
