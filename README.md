@@ -17,7 +17,7 @@ There are plenty of strong resources on this topic that can explain it better th
 
 ### Usage and Examples
 
-See [docs](https://docs.rs/paxos-rust/0.1.1/paxos_rust/)
+See [docs](https://docs.rs/paxos-rust/0.2.0/paxos_rust/)
 
 ### Next steps
 
