@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 /// A message sent between nodes
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum Message<T> {
     Prepare(ProposalData),
     Promise(PromiseData<T>),
@@ -13,13 +13,13 @@ pub enum Message<T> {
 }
 
 /// Proposal data (Proposer -> Acceptor)
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct ProposalData {
     pub id: u64,
 }
 
 /// Promise data (Acceptor -> Proposer)
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct PromiseData<T> {
     pub id: u64,
     pub value: Option<Arc<T>>,
@@ -27,14 +27,14 @@ pub struct PromiseData<T> {
 }
 
 /// Accept data (Proposer -> Acceptor)
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct AcceptData<T> {
     pub id: u64,
     pub value: Arc<T>,
 }
 
 /// Accepted data (Acceptor -> Proposer)
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct AcceptedData<T> {
     pub id: u64,
     pub value: Arc<T>,

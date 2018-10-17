@@ -1,6 +1,6 @@
 extern crate paxos_rust;
 
-use paxos_rust::{Acceptor, Message, Messenger, Proposer};
+use paxos_rust::{Acceptor, Learner, Message, Messenger, Proposer};
 use std::hash::Hash;
 use std::sync::mpsc::{self, Sender};
 use std::sync::Arc;
@@ -8,7 +8,7 @@ use std::thread;
 
 /// A `Messenger` that utilizes Channels to pass values between threads.
 pub struct ChannelMessenger<T> {
-    pub sender: Sender<Message<T>>,
+    pub senders: Vec<Sender<Message<T>>>,
 }
 
 impl<T> Messenger<T> for ChannelMessenger<T>
@@ -17,22 +17,30 @@ where
 {
     fn send_prepare(&mut self, msg: Message<T>) {
         println!("PREPARE");
-        self.sender.send(msg).unwrap();
+        for sender in &self.senders {
+            sender.send(msg.clone()).unwrap();
+        }
     }
 
     fn send_promise(&mut self, msg: Message<T>) {
         println!("PROMISE");
-        self.sender.send(msg).unwrap();
+        for sender in &self.senders {
+            sender.send(msg.clone()).unwrap();
+        }
     }
 
     fn send_accept(&mut self, msg: Message<T>) {
         println!("ACCEPT");
-        self.sender.send(msg).unwrap();
+        for sender in &self.senders {
+            sender.send(msg.clone()).unwrap();
+        }
     }
 
     fn send_accepted(&mut self, msg: Message<T>) {
         println!("ACCEPTED");
-        self.sender.send(msg).unwrap();
+        for sender in &self.senders {
+            sender.send(msg.clone()).unwrap();
+        }
     }
 
     fn on_resolution(&mut self, _proposal_n: u64, _value: Arc<T>) {}
@@ -44,11 +52,12 @@ where
 fn basic_paxos() {
     let (acc_sender, acc_receiver) = mpsc::channel();
     let (proposer_sender, proposer_receiver) = mpsc::channel();
+    let (learner_sender, learner_receiver) = mpsc::channel();
 
     thread::spawn(move || {
         let mut acc: Acceptor<u64> = Acceptor::new(1);
         let messenger = ChannelMessenger {
-            sender: proposer_sender,
+            senders: vec![proposer_sender, learner_sender],
         };
 
         acc.messenger = Some(Box::new(messenger));
@@ -65,10 +74,11 @@ fn basic_paxos() {
     });
 
     let p_thread = thread::spawn(move || {
-        let mut proposer: Proposer<u64> = Proposer::new(1);
-        let messenger = ChannelMessenger { sender: acc_sender };
+        let mut proposer: Proposer<u64> = Proposer::new(1, 1); // quorum of 1
+        let messenger = ChannelMessenger {
+            senders: vec![acc_sender],
+        };
         proposer.messenger = Some(Box::new(messenger));
-        proposer.quorum = 1;
 
         proposer.prepare(10);
 
@@ -86,5 +96,22 @@ fn basic_paxos() {
         }
     });
 
+    let l_thread = thread::spawn(move || {
+        let mut learner: Learner<u64> = Learner::new(1, 1); // quorum of 1
+
+        loop {
+            if learner.last_accepted_n == 1 {
+                break;
+            }
+            if let Ok(msg) = learner_receiver.recv() {
+                match msg {
+                    Message::Accepted(_) => learner.receive_accepted(msg),
+                    _ => {}
+                }
+            }
+        }
+    });
+
     assert!(p_thread.join().is_ok());
+    assert!(l_thread.join().is_ok());
 }
